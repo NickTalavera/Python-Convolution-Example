@@ -49,14 +49,17 @@ def combined(x,y):
         convolved = fFreq * gFreq
         yFull = ifft(convolved)
     else:
+        x = np.array(x)
+        dataSize = np.array(x.shape)
+        kernelSize = np.array(y.shape)
         size = dataSize + kernelSize - 1
         fsize = 2 ** np.ceil(np.log2(size)).astype(int)
-        xFFT = fft2(x, fsize)
-        yFFT = fft2(y, fsize)
+        xFFT = np.fft.fft2(x, fsize)
+        yFFT = np.fft.fft2(y, fsize)
         convolved = xFFT * yFFT
-        yFull = ifft2(convolved)
+        result = np.fft.ifft2(convolved)
         vRange = range((size[1] - dataSize[1])/2, dataSize[1] + (size[1] - dataSize[1])/2)
-        result = yFull[:,vRange]
+        yFull = result[:,vRange]
     hRange = range((size[0] - dataSize[0])/2, dataSize[0] + (size[0] - dataSize[0])/2)
     result = yFull[hRange]
     y = np.real(result)
@@ -72,7 +75,7 @@ naive_convolved1DFrequency = combined(signalOne1D, signalTwo1D);
 signalOne2D = np.random.randn(5,4)
 signalTwo2D = np.random.randn(5,10)
 convolvedActual2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same')
-naive_convolved2D = naive_convolved2D(signalOne2D, signalTwo2D);
+naive_convolved2D = combined(signalOne2D, signalTwo2D);
 
 
 plt.plot(convolvedActual2D)
