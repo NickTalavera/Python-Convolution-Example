@@ -1,4 +1,3 @@
-import os
 import unittest
 from convolution import convolution
 import numpy as np
@@ -15,26 +14,8 @@ convolvedActual1D = signal.fftconvolve(signalOne1D, signalTwo1D, mode = 'same')
 naive_convolved1DFrequency = convolution(signalOne1D, signalTwo1D);
 convolvedActual2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same')
 naive_convolved2D = convolution(signalOne2D, signalTwo2D);
-
-# Unit Tests
-# Pass in one empty variable
-# convolution([],[])
-# Pass in two empty variables
-# Pass in incompatible variables
-# Pass in two 1D arrays of equal length
-# Pass in two 1D arrays of different lengths
-# Pass in two 2D arrays
-# Pass in a 1D and 2D array
-# Pass in a 3D array
-# import sys
-# def main(n):
-#     res = fact(n)
-#     print(res)
-
-# if __name__ == '__main__':
-# naive_convolved2D = convolution(signalOne2D, signalTwo2D);
-
-
+print(convolvedActual2D)
+print(naive_convolved2D)
 
 
 plt.plot(convolvedActual2D)

@@ -2,6 +2,10 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.fft import fft,ifft,fft2,ifft2
+import unittest
+from scipy import signal
+from scipy import misc
+import itertools
 
 def convolution(x,y):
     # try:
@@ -12,8 +16,8 @@ def convolution(x,y):
     # instead of circular convolution. Circular convolution shouldn't be used in
     # images because they are not periodic. Using linear convolution instead
     # prevents wrapping the picture or signal on the edges.
-    print(padding)
-    print(dataSize)
+    # print(padding)
+    # print(dataSize)
     if len(dataSize) == 1 and len(kernelSize) == 1: # Check to see if both "x" and "y" are 1 dimension
         fFreq = fft(x, padding[0]) # Calculate the fourier transform of "x" with padding of length "size"
         gFreq = fft(y, padding[0]) # Calculate the fourier transform of "y" with padding of length "size"
@@ -29,7 +33,7 @@ def convolution(x,y):
         # the vertical range for the unpadded signal. If one is convolving two images, the typical desired effect
         # is to get the original dimension of the input data. Otherwise, every convolution would result in larger
         # boundaries along the edges.
-        print(vRange)
+        # print(vRange)
         yPadded = yFull[:,vRange] # Unpad the now convolved signals in the vertical range
     hRange = range((padding[0] - dataSize[0])/2, dataSize[0] + (padding[0] - dataSize[0])/2) # Calculate
     # the horizontnal range for the unpadded signal.
@@ -38,3 +42,44 @@ def convolution(x,y):
     return(y)
     # except:
         # raise ValueError("Arrays must have the same size")
+
+# # Unit Tests
+class TestConvolution(unittest.TestCase):
+# # Pass in one empty variable
+# # Pass in two empty variables
+# # Pass in incompatible variables
+# # Pass in two 1D arrays of equal length
+# # Pass in two 1D arrays of different lengths
+# # Pass in two 2D arrays
+# # Pass in a 1D and 2D array
+# # Pass in a 3D array
+    def test_Two_2D_Arrays(self):
+        np.random.seed(0)
+        numbersToTest = [2,6,7,100]
+        for subsetSignalOne in itertools.permutations(numbersToTest, 2):
+            for subsetSignalTwo in itertools.permutations(numbersToTest, 2):
+                signalOne2D = np.random.randn(subsetSignalOne[0],subsetSignalOne[1])
+                signalTwo2D = np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1])
+                convolvedActual2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 8)
+                naive_convolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 8)
+                self.assertTrue(np.array_equal(convolvedActual2D, naive_convolved2D));
+
+    def test_MinimalArrays(self):
+        np.random.seed(0)
+        for subsetSignalOne in itertools.permutations([1,20], 2):
+            for subsetSignalTwo in itertools.permutations([1,20], 2):
+                signalOne2D = np.random.randn(subsetSignalOne[0],subsetSignalOne[1])
+                signalTwo2D = np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1])
+                convolvedActual2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 8)
+                naive_convolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 8)
+                self.assertTrue(np.array_equal(convolvedActual2D, naive_convolved2D));
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+if __name__ == '__main__':
+    unittest.main()
