@@ -1,6 +1,5 @@
 ## convolution.py
 ## Written by Nick Talavera on February 13, 2017
-
 import unittest
 import random
 import itertools
@@ -11,11 +10,16 @@ from scipy import signal
 
 def convolution(x,y):
 ## Returns the unpadded linear convolution of an input array and a kernel array.
-## The convolution will be the same dimensions of the input array.
+## The convolution will be the same dimensions of the input array. This function
+## assumes both signals use the same sampling rate.
 ##
 ## Inputs:
-## x = a 1D or 2D input array that may be written in as an array, tuple or list and must be >= 1 in length
-## y = a 1D or 2D kernel array that may be written in as an array, tuple or list and must be >= 1 in length
+## x = a 1D or 2D time/spatial domain input matrix that may be written in as an
+##      array, tuple or list and must be >= 1 in length. This is typically the
+##      image or signal.
+## y = a 1D or 2D time/spatial domain kernel matrix that may be written in as an
+##      array, tuple or list and must be >= 1 in length. This is typically a second
+##      signal or a filter.
 
     # Test to see if the arrays are valid types. If so, get the shape of each.
     try:
@@ -69,7 +73,7 @@ def convolution(x,y):
     # the vertical range for the unpadded signal.
     hRange = range((padding[0] - dataSize[0]) / 2, dataSize[0] + (padding[0] - dataSize[0])/2) # Calculate
     # the horizontal range for the unpadded arrays
-    result = convolvedFull[hRange][:, vRange] # Unpad the now convolved arrays in the horizontal range
+    result = convolvedFull[hRange][:, vRange] # Unpad the now convolved arrays
 
     # Clean up the final output.
     convolvedOut = np.real(result) # Remove imaginary numbers
@@ -186,3 +190,28 @@ class TestConvolution(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main() # Run the unittest
+
+## To apply a linear filter to time series, design an 1D array in the frequency
+## domain with the desired response. Note that when designing the filter, the
+## frequency should be in designed with pi radians per sample. Then apply an
+## inverse fourier transform on signal to return the filter to the time domain
+## for use in the convolution function.
+
+## Building an edge detector or blur filter for a 2D image
+## Convolve the image with the edge detector filter:
+## [[0 1 0]
+## [1 -4 1]
+## [0 1 0]]
+
+## The following filter, sometimes reffered to as an outline filter, may
+## highlight edges slightly more dramatically:
+## [[1 1 1]
+## [1 -8 1]
+## [1 1 1]]
+
+## Blur detector
+## Convolve the image with a gaussian filter array. You can use a different sigma
+## and kernel size for different blur effects. This is one simple example filter:
+## [[1/16 1/8 1/6]
+## [1/8 1/4 1/8]
+## [1/16 1/8 1/16]]
