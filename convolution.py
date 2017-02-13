@@ -58,7 +58,7 @@ def convolution(x,y):
     # Frequency domain convolution can be more computationally efficient than
     # doing time domain convolution for large arrays.
     xFFT = np.fft.fft2(x, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
-    yFFT = np.fft.fft2(y, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
+    yFFT = np.fft.fft2(y, padding2D) # Calculate the fourier transform of "y" with padding of dimension "padding2D"
     convolved = xFFT * yFFT # Convolve in the frequency domain by multiplying the two fourier transformed arrays
     convolvedFull = np.fft.ifft2(convolved) # Calculate the inverse fourier transform to restore to the original domain
 
@@ -67,10 +67,9 @@ def convolution(x,y):
     # result in padded boundaries along the convolved array.
     vRange = range((padding[1] - dataSize[1]) / 2, dataSize[1] + (padding[1] - dataSize[1])/2) # Calculate
     # the vertical range for the unpadded signal.
-    convolvedPadded = convolvedFull[:,vRange] # Unpad the now convolved arrays in the vertical range
     hRange = range((padding[0] - dataSize[0]) / 2, dataSize[0] + (padding[0] - dataSize[0])/2) # Calculate
     # the horizontal range for the unpadded arrays
-    result = convolvedPadded[hRange] # Unpad the now convolved arrays in the horizontal range
+    result = convolvedFull[hRange][:, vRange] # Unpad the now convolved arrays in the horizontal range
 
     # Clean up the final output.
     convolvedOut = np.real(result) # Remove imaginary numbers
