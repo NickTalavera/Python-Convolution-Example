@@ -6,20 +6,25 @@ from numpy.fft import fft,ifft,fft2,ifft2
 from scipy import signal
 
 def convolution(x,y):
+    # Test to see if the arrays are valid types. If so, get the shape of each.
     try:
         x = np.array(x) # Convert "x" into a numpy array
         dataSize = np.array(x.shape) # Find the dimensions of input "x"
     except:
         raise ValueError("The input signal is not an array")
-    if x.size == 0:
-        raise ValueError("The input signal is empty")
     try:
         y = np.array(y) # Convert "y" into a numpy array
         kernelSize = np.array(y.shape) # Find the dimensions of kernel "y"
     except:
         raise ValueError("The kernel signal is not an array")
+
+    # Test to see if the arrays are empty.
+    if x.size == 0:
+        raise ValueError("The input signal is empty")
     if y.size == 0:
         raise ValueError("The kernel signal is empty")
+
+    # Test to see if the arrays are 1D or 2D. If 1D, change to 2D to be processed by fft2.
     if len(dataSize) == 1: # Check to see if both "x" and "y" are 1 dimension
         x = np.array([x])  # Convert "x" into 2d
         dataSize = np.array(x.shape) # Find the dimensions of input "x"
@@ -30,6 +35,7 @@ def convolution(x,y):
         kernelSize = np.array(y.shape) # Find the dimensions of kernel "y"
     elif len(kernelSize) != 2:
         raise ValueError("The kernel signal not a 1D or 2D array")
+
     padding = dataSize + kernelSize - 1 # Add the dimensions of input "x" and "y"
     # and subtract 1. We calculate the padding so we perform linear convolution
     # instead of circular convolution. Circular convolution shouldn't be used in
