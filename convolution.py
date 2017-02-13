@@ -53,19 +53,26 @@ def convolution(x,y):
     # because images are not periodic. Using linear convolution instead prevents
     # wrapping the image or signal on the edges.
     padding = dataSize + kernelSize - 1 # Add the dimension of input "x" and "y" and subtract 1
-    padding2D = 2 ** np.ceil(np.log2(padding)).astype(int) # Find the nearest 2^x power of the padding
+    padding2D = 2 ** np.ceil(np.log2(padding)).astype(int) # Find the nearest 2^x power of the padding. The FFT function requires ints.
+
+    # Frequency domain convolution can be more computationally efficient than
+    # doing time domain convolution for large arrays.
     xFFT = np.fft.fft2(x, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     yFFT = np.fft.fft2(y, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     convolved = xFFT * yFFT # Convolve in the frequency domain by multiplying the two fourier transformed arrays
     convolvedFull = np.fft.ifft2(convolved) # Calculate the inverse fourier transform to restore to the original domain
+
+    # If one is convolving two images, the typical desired effect is to get the
+    # original dimension of the input data. Otherwise, every convolution would
+    # result in padded boundaries along the convolved array.
     vRange = range((padding[1] - dataSize[1]) / 2, dataSize[1] + (padding[1] - dataSize[1])/2) # Calculate
-    # the vertical range for the unpadded signal. If one is convolving two images, the typical desired effect
-    # is to get the original dimension of the input data. Otherwise, every convolution would result in padded
-    # boundaries along the convolved array.
+    # the vertical range for the unpadded signal.
     convolvedPadded = convolvedFull[:,vRange] # Unpad the now convolved arrays in the vertical range
     hRange = range((padding[0] - dataSize[0]) / 2, dataSize[0] + (padding[0] - dataSize[0])/2) # Calculate
     # the horizontal range for the unpadded arrays
     result = convolvedPadded[hRange] # Unpad the now convolved arrays in the horizontal range
+
+    # Clean up the final output.
     convolvedOut = np.real(result) # Remove imaginary numbers
     if convolvedOut.shape[0] == 1: # If the array can be converted back to 1D, remove the outer bracket
         convolvedOut = convolvedOut[0] # Remove the outer bracket
