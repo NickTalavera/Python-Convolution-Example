@@ -55,19 +55,19 @@ def convolution(x,y):
     xFFT = np.fft.fft2(x, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     yFFT = np.fft.fft2(y, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     convolved = xFFT * yFFT # Convolve in the frequency domain by multiplying the two fourier transformed signals
-    yFull = np.fft.ifft2(convolved) # Calculate the inverse fourier transform to restore to the original domain
+    convolvedFull = np.fft.ifft2(convolved) # Calculate the inverse fourier transform to restore to the original domain
     vRange = range((padding[1] - dataSize[1])/2, dataSize[1] + (padding[1] - dataSize[1])/2) # Calculate
     # the vertical range for the unpadded signal. If one is convolving two images, the typical desired effect
     # is to get the original dimension of the input data. Otherwise, every convolution would result in larger
     # boundaries along the edges.
-    yPadded = yFull[:,vRange] # Unpad the now convolved signals in the vertical range
+    convolvedPadded = convolvedFull[:,vRange] # Unpad the now convolved signals in the vertical range
     hRange = range((padding[0] - dataSize[0])/2, dataSize[0] + (padding[0] - dataSize[0])/2) # Calculate
     # the horizontal range for the unpadded signal.
-    result = yPadded[hRange] # Unpad the now convolved signals in the horizontal range
-    yOut = np.real(result) # Remove imaginary numbers
-    if yOut.shape[0] == 1: # If the array can be converted to 1D, remove the outer bracket
-        yOut = yOut[0] # Remove the outer bracket
-    return(yOut)
+    result = convolvedPadded[hRange] # Unpad the now convolved signals in the horizontal range
+    convolvedOut = np.real(result) # Remove imaginary numbers
+    if convolvedOut.shape[0] == 1: # If the array can be converted to 1D, remove the outer bracket
+        convolvedOut = convolvedOut[0] # Remove the outer bracket
+    return(convolvedOut) # Return the convolved array
 
 
 class TestConvolution(unittest.TestCase):
