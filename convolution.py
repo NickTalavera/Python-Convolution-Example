@@ -48,11 +48,18 @@ class TestConvolution(unittest.TestCase):
 # # Pass in one empty variable
 # # Pass in two empty variables
 # # Pass in incompatible variables
-# # Pass in two 1D arrays of equal length
-# # Pass in two 1D arrays of different lengths
-# # Pass in two 2D arrays
 # # Pass in a 1D and 2D array
 # # Pass in a 3D array
+    def test_Two_1D_Arrays(self):
+        np.random.seed(0)
+        numbersToTest = [2,6,7,100]
+        for subsetSignal in itertools.permutations(numbersToTest, 2):
+            signalOne1D = np.random.randn(subsetSignal[0])
+            signalTwo1D = np.random.randn(subsetSignal[1])
+            convolvedActual1D = np.around(signal.convolve(signalOne1D, signalTwo1D, mode='same'), decimals = 8)
+            naive_convolved1D = np.around(convolution(signalOne1D, signalTwo1D), decimals = 8)
+            self.assertTrue(np.array_equal(convolvedActual1D, naive_convolved1D));
+
     def test_Two_2D_Arrays(self):
         np.random.seed(0)
         numbersToTest = [2,6,7,100]
@@ -64,7 +71,7 @@ class TestConvolution(unittest.TestCase):
                 naive_convolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 8)
                 self.assertTrue(np.array_equal(convolvedActual2D, naive_convolved2D));
 
-    def test_MinimalArrays(self):
+    def test_Minimal_Arrays(self):
         np.random.seed(0)
         for subsetSignalOne in itertools.permutations([1,20], 2):
             for subsetSignalTwo in itertools.permutations([1,20], 2):
@@ -73,6 +80,17 @@ class TestConvolution(unittest.TestCase):
                 convolvedActual2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 8)
                 naive_convolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 8)
                 self.assertTrue(np.array_equal(convolvedActual2D, naive_convolved2D));
+
+    def test_Different_Dimensions(self):
+        np.random.seed(0)
+        signalOne2D = np.array([np.random.randn(20)])
+        signalTwo2D = np.random.randn(1,20)
+        print(signalOne2D)
+        print(signalTwo2D)
+        convolvedActual2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 8)
+        naive_convolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 8)
+        self.assertTrue(np.array_equal(convolvedActual2D, naive_convolved2D));
+
 
     def test_split(self):
         s = 'hello world'
