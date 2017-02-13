@@ -1,3 +1,6 @@
+## convolution.py
+## Written by Nick Talavera on February 13, 2017
+
 import unittest
 import random
 import itertools
@@ -6,6 +9,13 @@ from numpy.fft import fft,ifft,fft2,ifft2
 from scipy import signal
 
 def convolution(x,y):
+## Returns a convolved array from an input array and a kernel array with the shape
+## of the original input array.
+##
+## Inputs:
+## x = a 1D or 2D input array that may be written in as an array, tuple or list and must be >= 1 in length
+## y = a 1D or 2D kernel array that may be written in as an array, tuple or list and must be >= 1 in length
+
     # Test to see if the arrays are valid types. If so, get the shape of each.
     try:
         x = np.array(x) # Convert "x" into a numpy array
