@@ -5,6 +5,7 @@ import unittest
 import random
 import itertools
 import numpy as np
+from numpy.random import randn, seed
 from numpy.fft import fft,ifft,fft2,ifft2
 from scipy import signal
 
@@ -72,14 +73,14 @@ def convolution(x,y):
 
 class TestConvolution(unittest.TestCase):
     ## Unit tests for the convolution function
-    np.random.seed(0) # set the seed to 0 for consistency
+    seed(0) # set the seed to 0 for consistency
 
     def test_Two_1D_Arrays(self):
         ## Test if two 1D arrays are properly convolved with eachother in the convolution function.
         numbersToTest = [2,6,7,100] # Possible dimensions of a signal to be permuted and tested
         for subsetSignal in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest"
-            signalOne1D = np.random.randn(subsetSignal[0]) # Generate a signal
-            signalTwo1D = np.random.randn(subsetSignal[1]) # Generate another signal
+            signalOne1D = randn(subsetSignal[0]) # Generate a signal
+            signalTwo1D = randn(subsetSignal[1]) # Generate another signal
             trueConvolved1D = np.around(signal.convolve(signalOne1D, signalTwo1D, mode='same'), decimals = 10) # Try the default convolution function
             testConvolved1D = np.around(convolution(signalOne1D, signalTwo1D), decimals = 10) # Try the custom convolution function
             self.assertTrue(np.array_equal(testConvolved1D, trueConvolved1D)) # Success if signals are equal
@@ -89,8 +90,8 @@ class TestConvolution(unittest.TestCase):
         numbersToTest = [2,6,7,100] # Possible dimensions of a signal to be permuted and tested
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
-                signalOne2D = np.random.randn(subsetSignalOne[0],subsetSignalOne[1]) # Generate a signal
-                signalTwo2D = np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1]) # Generate another signal
+                signalOne2D = randn(subsetSignalOne[0],subsetSignalOne[1]) # Generate a signal
+                signalTwo2D = randn(subsetSignalTwo[0],subsetSignalTwo[1]) # Generate another signal
                 trueConvolved2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
                 testConvolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 10) # Try the custom convolution function
                 self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D)) # Success if signals are equal
@@ -99,8 +100,8 @@ class TestConvolution(unittest.TestCase):
         ## Test if 1X# or #X1 arrays can be convolved with eachother in the convolution function.
         for subsetSignalOne in itertools.permutations([1,20], 2): # For all permutations to create 1X# or #X1 arrays
             for subsetSignalTwo in itertools.permutations([1,20], 2): # For all permutations 1X# or #X1 arrays for a second signal
-                signalOne2D = np.random.randn(subsetSignalOne[0],subsetSignalOne[1]) # Generate a signal
-                signalTwo2D = np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1]) # Generate another signal
+                signalOne2D = randn(subsetSignalOne[0],subsetSignalOne[1]) # Generate a signal
+                signalTwo2D = randn(subsetSignalTwo[0],subsetSignalTwo[1]) # Generate another signal
                 trueConvolved2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
                 testConvolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 10) # Try the custom convolution function
                 if trueConvolved2D.shape[0] == 1: # If the true array should be 1D for comparison, remove outer bracket
@@ -109,8 +110,8 @@ class TestConvolution(unittest.TestCase):
 
     def test_Different_Dimensions(self):
         ## Test if 1D and 2D functions can be convolved with eachother in the convolution function.
-        signalOne1D = np.random.randn(20) # Generate a 1D signal
-        signalTwo2D = np.random.randn(4,20) # Generate a 2D signal
+        signalOne1D = randn(20) # Generate a 1D signal
+        signalTwo2D = randn(4,20) # Generate a 2D signal
         trueConvolved2D = np.around(signal.convolve2d([signalOne1D], signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
         testConvolved2D = np.around(convolution(signalOne1D, signalTwo2D), decimals = 10) # Try the custom convolution function
         self.assertTrue(np.array_equal(testConvolved2D,trueConvolved2D[0])) # Success if signals are equal
@@ -146,15 +147,15 @@ class TestConvolution(unittest.TestCase):
         ## Test if tuples can be used in the convolution function.
         numbersToTest = [6,7] # Possible dimensions of a signal to be permuted and tested
         for subsetSignal in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest"
-            signalOne1D = tuple(np.random.randn(subsetSignal[0])) # Generate a 1D signal as a tuple
-            signalTwo1D = tuple(np.random.randn(subsetSignal[1])) # Generate another 1D signal as a tuple
+            signalOne1D = tuple(randn(subsetSignal[0])) # Generate a 1D signal as a tuple
+            signalTwo1D = tuple(randn(subsetSignal[1])) # Generate another 1D signal as a tuple
             trueConvolved1D = np.around(signal.convolve(signalOne1D, signalTwo1D, mode='same'), decimals = 10) # Try the default convolution function
             testConvolved1D = np.around(convolution(signalOne1D, signalTwo1D), decimals = 10) # Try the custom convolution function
             self.assertTrue(np.array_equal(testConvolved1D, trueConvolved1D)) # Success if signals are equal
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
-                signalOne2D = tuple(map(tuple, np.random.randn(subsetSignalOne[0],subsetSignalOne[1]))) # Generate a 2D signal as a list
-                signalTwo2D = tuple(map(tuple, np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1]))) # Generate another 2D signal as a list
+                signalOne2D = tuple(map(tuple, randn(subsetSignalOne[0],subsetSignalOne[1]))) # Generate a 2D signal as a list
+                signalTwo2D = tuple(map(tuple, randn(subsetSignalTwo[0],subsetSignalTwo[1]))) # Generate another 2D signal as a list
                 trueConvolved2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
                 testConvolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 10) # Try the custom convolution function
                 self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D)) # Success if signals are equal
@@ -163,15 +164,15 @@ class TestConvolution(unittest.TestCase):
         ## Test if lists can be used in the convolution function.
         numbersToTest = [6,7] # Possible dimensions of a signal to be permuted and tested
         for subsetSignal in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest"
-            signalOne1D = np.ndarray.tolist(np.random.randn(subsetSignal[0])) # Generate a 1D signal as a list
-            signalTwo1D = np.ndarray.tolist(np.random.randn(subsetSignal[1])) # Generate another 1D signal as a list
+            signalOne1D = np.ndarray.tolist(randn(subsetSignal[0])) # Generate a 1D signal as a list
+            signalTwo1D = np.ndarray.tolist(randn(subsetSignal[1])) # Generate another 1D signal as a list
             trueConvolved1D = np.around(signal.convolve(signalOne1D, signalTwo1D, mode='same'), decimals = 10) # Try the default convolution function
             testConvolved1D = np.around(convolution(signalOne1D, signalTwo1D), decimals = 10) # Try the custom convolution function
             self.assertTrue(np.array_equal(testConvolved1D, trueConvolved1D)) # Success if signals are equal
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
-                signalOne2D = np.ndarray.tolist(np.random.randn(subsetSignalOne[0],subsetSignalOne[1])) # Generate a 2D signal as a list
-                signalTwo2D = np.ndarray.tolist(np.random.randn(subsetSignalTwo[0],subsetSignalTwo[1])) # Generate another 2D signal as a list
+                signalOne2D = np.ndarray.tolist(randn(subsetSignalOne[0],subsetSignalOne[1])) # Generate a 2D signal as a list
+                signalTwo2D = np.ndarray.tolist(randn(subsetSignalTwo[0],subsetSignalTwo[1])) # Generate another 2D signal as a list
                 trueConvolved2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
                 testConvolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 10) # Try the custom convolution function
                 self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D)) # Success if signals are equal
