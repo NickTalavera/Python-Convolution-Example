@@ -10,8 +10,8 @@ from numpy.fft import fft,ifft,fft2,ifft2
 from scipy import signal
 
 def convolution(x,y):
-## Returns a convolved array from an input array and a kernel array with the shape
-## of the original input array.
+## Returns the unpadded linear convolution of an input array and a kernel array.
+## The convolution will be the same dimensions of the input array.
 ##
 ## Inputs:
 ## x = a 1D or 2D input array that may be written in as an array, tuple or list and must be >= 1 in length
@@ -35,7 +35,8 @@ def convolution(x,y):
     if y.size == 0:
         raise ValueError("The kernel signal is empty")
 
-    # Test to see if the arrays are 1D or 2D. If 1D, change to 2D to be processed by fft2.
+    # Test to see if the arrays are 1D or greater than 2 dimensions. If 1D,
+    # change to 2D to be compatible with fft2.
     if len(dataSize) == 1: # Check to see if both "x" and "y" are 1 dimension
         x = np.array([x])  # Convert "x" into 2d
         dataSize = np.array(x.shape) # Find the dimensions of input "x"
@@ -47,12 +48,13 @@ def convolution(x,y):
     elif len(kernelSize) != 2:
         raise ValueError("The kernel signal not a 1D or 2D array")
 
-    padding = dataSize + kernelSize - 1 # Add the dimensions of input "x" and "y"
-    # and subtract 1. We calculate the padding so we perform linear convolution
-    # instead of circular convolution. Circular convolution shouldn't be used in
-    # images because they are not periodic. Using linear convolution instead
-    # prevents wrapping the picture or signal on the edges.
-    padding2D = 2 ** np.ceil(np.log2(padding)).astype(int) # Calculate the 2D padding on each dimension
+    padding = dataSize + kernelSize - 1
+    padding2D = 2 ** np.ceil(np.log2(padding)).astype(int) # Add the dimensions
+    # of input "x" and "y" and subtract 1, then find the nearest 2^x power.
+    # We calculate the padding so we can perform linear convolution instead of
+    # circular convolution. Circular convolution shouldn't be used in images
+    # because images are not periodic. Using linear convolution instead prevents
+    # wrapping the picture or signal on the edges.
     xFFT = np.fft.fft2(x, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     yFFT = np.fft.fft2(y, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     convolved = xFFT * yFFT # Convolve in the frequency domain by multiplying the two fourier transformed arrays
@@ -66,7 +68,7 @@ def convolution(x,y):
     # the horizontal range for the unpadded arrays
     result = convolvedPadded[hRange] # Unpad the now convolved arrays in the horizontal range
     convolvedOut = np.real(result) # Remove imaginary numbers
-    if convolvedOut.shape[0] == 1: # If the array can be converted to 1D, remove the outer bracket
+    if convolvedOut.shape[0] == 1: # If the array can be converted back to 1D, remove the outer bracket
         convolvedOut = convolvedOut[0] # Remove the outer bracket
     return(convolvedOut) # Return the convolved array
 
@@ -128,7 +130,7 @@ class TestConvolution(unittest.TestCase):
             np.around(convolution([3,2,1], []), decimals = 10)
 
     def test_High_Dimension_Arrays(self):
-        ## Test if high dimension (>2D) arrays throw errors in the convolution function.
+        ## Test if >2 dimension arrays throw errors in the convolution function.
         with self.assertRaises(ValueError): # Success if an error is thrown for a 3D array
             np.around(convolution(np.arange(30).reshape(2,3,5), np.arange(30).reshape(2,3,5)), decimals = 10)
         with self.assertRaises(ValueError): # Success if an error is thrown for a 4D array
