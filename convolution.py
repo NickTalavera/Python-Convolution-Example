@@ -134,7 +134,7 @@ class TestConvolution(unittest.TestCase):
         self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D[0])) # Success if arrays are equal
 
     def test_Did_Convert_To_1D(self):
-        ## Test if 2D depth 1D arrays are kept 1D in the output and 2D depth arrays are kept 2D in the output
+        ## Test if 1D depth 1D arrays are kept 1D in the output and 2D depth 1D arrays are kept 2D in the output
         signalOne1D = randn(17) # Generate a 1D signal
         signalTwo1D = randn(4) # Generate another 1D signal
         test1D1D = convolution(signalOne1D, signalTwo1D).ndim # 1D input, 1D kernel
@@ -246,13 +246,13 @@ if __name__ == '__main__':
 ## [1 -4 1]
 ## [0 1 0]]
 ##
-## The following filter, sometimes reffered to as an outline filter, may
-## highlight edges slightly more dramatically:
+## The following filter is an outline filter which can highlight edges
+## slightly more dramatically:
 ## [[1 1 1]
 ## [1 -8 1]
 ## [1 1 1]]
 ##
-## Blur detector
+## Blur filter
 ## Convolve the image with a gaussian filter array. You can use a different sigma
 ## and kernel size for different blur effects. This is one simple example filter:
 ## [[1/16 1/8 1/6]
