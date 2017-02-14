@@ -14,12 +14,12 @@ def convolution(x,y):
 ## assumes both signals use the same sampling rate.
 ##
 ## Inputs:
-## x = a 1D or 2D time/spatial domain input matrix that may be written in as an
-##      array, tuple or list and must be >= 1 in length. This is typically the
-##      image or signal.
-## y = a 1D or 2D time/spatial domain kernel matrix that may be written in as an
-##      array, tuple or list and must be >= 1 in length. This is typically a second
-##      signal or a filter.
+## x = a 1D or 2D time/spatial domain input matrix that may be written in as a
+##      rectangular array, tuple or list and must be >= 1 in length. This is
+##      typically the image or signal.
+## y = a 1D or 2D time/spatial domain kernel matrix that may be written in as a
+##      rectangular array, tuple or list and must be >= 1 in length. This is
+##      typically a second signal or a filter.
 
     # Test to see if the arrays are valid types. If so, get the shape of each.
     try:
@@ -39,10 +39,12 @@ def convolution(x,y):
     if y.size == 0:
         raise ValueError("The kernel signal is empty")
 
+    shouldConvertTo1D = False
     # Test to see if the arrays are 1D or greater than 2 dimensions. If 1D,
     # change to 2D to be compatible with fft2.
     if len(dataSize) == 1: # Check to see if both "x" and "y" are 1 dimension
         x = np.array([x])  # Convert "x" into 2d
+        shouldConvertTo1D = True
         dataSize = np.array(x.shape) # Find the dimensions of input "x"
     elif len(dataSize) != 2:
         raise ValueError("The input signal not a 1D or 2D array")
@@ -83,7 +85,7 @@ def convolution(x,y):
 
     # Clean up the final output.
     convolvedOut = np.real(result) # Remove imaginary numbers
-    if convolvedOut.shape[0] == 1: # If the array can be converted back to 1D, remove the outer bracket
+    if convolvedOut.shape[0] == 1 and shouldConvertTo1D == True: # If the array can be converted back to 1D, remove the outer bracket
         convolvedOut = convolvedOut[0] # Remove the outer bracket
     return(convolvedOut) # Return the convolved array
 
@@ -121,8 +123,6 @@ class TestConvolution(unittest.TestCase):
                 signalTwo2D = randn(subsetSignalTwo[0], subsetSignalTwo[1]) # Generate another signal
                 trueConvolved2D = np.around(signal.convolve2d(signalOne2D, signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
                 testConvolved2D = np.around(convolution(signalOne2D, signalTwo2D), decimals = 10) # Try the custom convolution function
-                if trueConvolved2D.shape[0] == 1: # If the true array should be 1D for comparison, remove outer bracket
-                    trueConvolved2D = trueConvolved2D[0]
                 self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D)) # Success if arrays are equal
 
     def test_Different_Dimensions(self):
@@ -132,6 +132,20 @@ class TestConvolution(unittest.TestCase):
         trueConvolved2D = np.around(signal.convolve2d([signalOne1D], signalTwo2D, mode='same'), decimals = 10) # Try the default convolution function
         testConvolved2D = np.around(convolution(signalOne1D, signalTwo2D), decimals = 10) # Try the custom convolution function
         self.assertTrue(np.array_equal(testConvolved2D, trueConvolved2D[0])) # Success if arrays are equal
+
+    def test_Did_Convert_To_1D(self):
+        ## Test if 2D depth 1D arrays are kept 1D in the output and 2D depth arrays are kept 2D in the output
+        signalOne1D = randn(17) # Generate a 1D signal
+        signalTwo1D = randn(4) # Generate another 1D signal
+        test1D1D = convolution(signalOne1D, signalTwo1D).ndim
+        self.assertTrue(np.array_equal(test1D1D, 1)) # 1D input, 1D kernel, outputs 1D
+        test1D2D = convolution(signalOne1D, [signalTwo1D]).ndim
+        self.assertTrue(np.array_equal(test1D2D, 1)) # 1D input, 2D kernel, outputs 1D
+        test2D1D = convolution([signalOne1D], signalTwo1D).ndim
+        self.assertTrue(np.array_equal(test2D1D, 2)) # 2D input, 1D kernel, outputs 2D
+        test2D2D = convolution([signalOne1D], [signalTwo1D]).ndim
+        self.assertTrue(np.array_equal(test2D2D, 2)) # 2D input, 2D kernel, outputs 2D
+
 
     def test_Empty_Variables(self):
         ## Test if empty variables throw errors in the convolution function.
@@ -216,24 +230,28 @@ class TestConvolution(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main() # Run the unittest
 
+## Applying a linear filter to time series data
+##
 ## To apply a linear filter to time series, design an 1D array in the frequency
 ## domain with the desired response. Note that when designing the filter, the
 ## frequency should be in designed with pi radians per sample. Then apply an
 ## inverse fourier transform on signal to return the filter to the time domain
 ## for use in the convolution function.
-
+##
+##
 ## Building an edge detector or blur filter for a 2D image
+##
 ## Convolve the image with the edge detector filter:
 ## [[0 1 0]
 ## [1 -4 1]
 ## [0 1 0]]
-
+##
 ## The following filter, sometimes reffered to as an outline filter, may
 ## highlight edges slightly more dramatically:
 ## [[1 1 1]
 ## [1 -8 1]
 ## [1 1 1]]
-
+##
 ## Blur detector
 ## Convolve the image with a gaussian filter array. You can use a different sigma
 ## and kernel size for different blur effects. This is one simple example filter:
