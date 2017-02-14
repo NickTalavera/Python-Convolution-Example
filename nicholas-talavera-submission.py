@@ -1,5 +1,13 @@
 ## convolution.py
+## This script includes a function for discrete linear convolution, unit tests
+## for the convolution function, instructions for applying time domain linear
+## filters, and edge detector and blur filters.
+##
 ## Written by Nick Talavera on February 13, 2017
+##
+## To run, type:
+## python nicholas-talavera-submission.py
+##
 import unittest
 import random
 import itertools
@@ -9,9 +17,8 @@ from numpy.fft import fft,ifft,fft2,ifft2
 from scipy import signal
 
 def convolution(x,y):
-## Returns the unpadded linear convolution of an input array and a kernel array.
-## The convolution will be the same dimensions of the input array. This function
-## assumes both signals use the same sampling rate.
+## Returns the discrete linear convolution of an input array and a kernel array.
+## The output will be the same dimensions of the input array.
 ##
 ## Inputs:
 ## x = a 1D or 2D time/spatial domain input matrix that may be written in as a
@@ -19,8 +26,11 @@ def convolution(x,y):
 ##      typically the image or signal.
 ## y = a 1D or 2D time/spatial domain kernel matrix that may be written in as a
 ##      rectangular array, tuple or list and must be >= 1 in length. This is
-##      typically a second signal or a filter.
-
+##      typically a second signal/image or a filter.
+##
+## Example:
+## convolution([3, 2, 1], [[3,2,1],[3,2,1]])
+##
     # Test to see if the arrays are valid types. If so, get the shape of each.
     try:
         x = np.array(x) # Convert "x" into a numpy array
@@ -56,13 +66,14 @@ def convolution(x,y):
 
     # We calculate the padding so we can perform linear convolution instead of
     # circular convolution. Circular convolution shouldn't be used in images
-    # because images are not periodic. Using linear convolution instead prevents
+    # because images are not periodic. Using `linear convolution instead prevents
     # wrapping the image or signal on the edges.
     padding = dataSize + kernelSize - 1 # Add the dimension of input "x" and "y" and subtract 1
     padding2D = 2 ** np.ceil(np.log2(padding)).astype(int) # Find the nearest 2^x power of the padding. The FFT function requires ints.
 
     # Frequency domain convolution can be more computationally efficient than
-    # doing time domain convolution for large arrays.
+    # doing time domain convolution for large arrays. Tests for failures in FFT
+    # calculations.
     try:
         xFFT = np.fft.fft2(x, padding2D) # Calculate the fourier transform of "x" with padding of dimension "padding2D"
     except:
@@ -96,24 +107,24 @@ class TestConvolution(unittest.TestCase):
 
     def test_Two_1D_Arrays(self):
         ## Test if two 1D arrays are properly convolved with eachother in the convolution function.
-        numbersToTest = [2, 6, 7, 100] # Possible dimensions of a signal to be permuted and tested
+        numbersToTest = [2, 6, 7, 15, 100] # Possible dimensions of a signal to be permuted and tested
         for subsetSignal in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest"
             signalOne1D = randn(subsetSignal[0]) # Generate a signal
             signalTwo1D = randn(subsetSignal[1]) # Generate another signal
             trueConvolved1D = signal.convolve(signalOne1D, signalTwo1D, mode='same') # Try the default convolution function
             testConvolved1D = convolution(signalOne1D, signalTwo1D) # Try the custom convolution function
-            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 9), np.around(trueConvolved1D, decimals = 9))) # Success if arrays are equal
+            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 8), np.around(trueConvolved1D, decimals = 8))) # Success if arrays are equal
 
     def test_Two_2D_Arrays(self):
         ## Test if two 2D arrays are properly convolved with eachother in the convolution function.
-        numbersToTest = [2, 6, 7, 100] # Possible dimensions of a signal to be permuted and tested
+        numbersToTest = [2, 6, 7, 15, 100] # Possible dimensions of a signal to be permuted and tested
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
                 signalOne2D = randn(subsetSignalOne[0], subsetSignalOne[1]) # Generate a signal
                 signalTwo2D = randn(subsetSignalTwo[0], subsetSignalTwo[1]) # Generate another signal
                 trueConvolved2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same') # Try the default convolution function
                 testConvolved2D = convolution(signalOne2D, signalTwo2D) # Try the custom convolution function
-                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 9), np.around(trueConvolved2D, decimals = 9))) # Success if arrays are equal
+                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 8), np.around(trueConvolved2D, decimals = 8))) # Success if arrays are equal
 
     def test_Minimal_Arrays(self):
         ## Test if 1X# or #X1 arrays can be convolved with eachother in the convolution function.
@@ -123,7 +134,7 @@ class TestConvolution(unittest.TestCase):
                 signalTwo2D = randn(subsetSignalTwo[0], subsetSignalTwo[1]) # Generate another signal
                 trueConvolved2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same') # Try the default convolution function
                 testConvolved2D = convolution(signalOne2D, signalTwo2D) # Try the custom convolution function
-                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 9), np.around(trueConvolved2D, decimals = 9))) # Success if arrays are equal
+                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 8), np.around(trueConvolved2D, decimals = 8))) # Success if arrays are equal
 
     def test_Different_Dimensions(self):
         ## Test if 1D and 2D functions can be convolved with eachother in the convolution function.
@@ -131,7 +142,7 @@ class TestConvolution(unittest.TestCase):
         signalTwo2D = randn(4, 20) # Generate a 2D signal
         trueConvolved2D = signal.convolve2d([signalOne1D], signalTwo2D, mode='same') # Try the default convolution function
         testConvolved2D = convolution(signalOne1D, signalTwo2D) # Try the custom convolution function
-        self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 9), np.around(trueConvolved2D[0], decimals = 9))) # Success if arrays are equal
+        self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 8), np.around(trueConvolved2D[0], decimals = 8))) # Success if arrays are equal
 
     def test_Did_Convert_To_1D(self):
         ## Test if 1D depth 1D arrays are kept 1D in the output and 2D depth 1D arrays are kept 2D in the output.
@@ -177,8 +188,14 @@ class TestConvolution(unittest.TestCase):
             convolution([1, 2, 3], "[4, 5, 6]")
         with self.assertRaises(ValueError): # Success if an error is thrown incorrect input type
             convolution("[1, 2, 3]", [3, 2, 1])
-        with self.assertRaises(ValueError): # Success if an error is thrown incorrect input type
+        with self.assertRaises(ValueError): # Success if an error is thrown for an incorrect input type in 1D array form
+            convolution([True, False, "2"], [3, 2, 1])
+        with self.assertRaises(ValueError): # Success if an error is thrown for an incorrect input type in 2D array form
+            convolution([[True, False, "2"], [True, False, "2"]],[3, 2, 1])
+        with self.assertRaises(ValueError): # Success if an error is thrown for an incorrect kernel type in 1D array form
             convolution([3, 2, 1], [True, False, "2"])
+        with self.assertRaises(ValueError): # Success if an error is thrown for an incorrect kernel type in 2D array form
+            convolution([3, 2, 1], [[True, False, "2"], [True, False, "2"]])
 
     def test_Tuple_Conversion(self):
         ## Test if tuples can be used in the convolution function.
@@ -189,7 +206,7 @@ class TestConvolution(unittest.TestCase):
             signalTwo1D = tuple(randn(subsetSignal[1])) # Generate another 1D signal as a tuple
             trueConvolved1D = signal.convolve(signalOne1D, signalTwo1D, mode='same') # Try the default convolution function
             testConvolved1D = convolution(signalOne1D, signalTwo1D) # Try the custom convolution function
-            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 9), np.around(trueConvolved1D, decimals = 9))) # Success if arrays are equal
+            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 8), np.around(trueConvolved1D, decimals = 8))) # Success if arrays are equal
         #Test 2D tuples
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
@@ -197,18 +214,18 @@ class TestConvolution(unittest.TestCase):
                 signalTwo2D = tuple(map(tuple, randn(subsetSignalTwo[0], subsetSignalTwo[1]))) # Generate another 2D signal as a list
                 trueConvolved2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same') # Try the default convolution function
                 testConvolved2D = convolution(signalOne2D, signalTwo2D) # Try the custom convolution function
-                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 9), np.around(trueConvolved2D, decimals = 9))) # Success if arrays are equal
+                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 8), np.around(trueConvolved2D, decimals = 8))) # Success if arrays are equal
 
     def test_List_Conversion(self):
         ## Test if lists can be used in the convolution function.
         numbersToTest = [6, 7] # Possible dimensions of a signal to be permuted and tested
-        #Test 1D tuples
+        #Test 1D lists
         for subsetSignal in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest"
             signalOne1D = np.ndarray.tolist(randn(subsetSignal[0])) # Generate a 1D signal as a list
             signalTwo1D = np.ndarray.tolist(randn(subsetSignal[1])) # Generate another 1D signal as a list
             trueConvolved1D = signal.convolve(signalOne1D, signalTwo1D, mode='same') # Try the default convolution function
             testConvolved1D = convolution(signalOne1D, signalTwo1D) # Try the custom convolution function
-            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 9), np.around(trueConvolved1D, decimals = 9))) # Success if arrays are equal
+            self.assertTrue(np.array_equal(np.around(testConvolved1D, decimals = 8), np.around(trueConvolved1D, decimals = 8))) # Success if arrays are equal
         #Test 2D lists
         for subsetSignalOne in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalOne
             for subsetSignalTwo in itertools.permutations(numbersToTest, 2): # For all permutations of "numbersToTest" for signalTwo
@@ -216,7 +233,7 @@ class TestConvolution(unittest.TestCase):
                 signalTwo2D = np.ndarray.tolist(randn(subsetSignalTwo[0], subsetSignalTwo[1])) # Generate another 2D signal as a list
                 trueConvolved2D = signal.convolve2d(signalOne2D, signalTwo2D, mode='same') # Try the default convolution function
                 testConvolved2D = convolution(signalOne2D, signalTwo2D) # Try the custom convolution function
-                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 9), np.around(trueConvolved2D, decimals = 9))) # Success if arrays are equal
+                self.assertTrue(np.array_equal(np.around(testConvolved2D, decimals = 8), np.around(trueConvolved2D, decimals = 8))) # Success if arrays are equal
 
     def test_Nonrectangular_Lists(self):
         ## Test if nonrectangular lists are rejected.
@@ -256,7 +273,7 @@ if __name__ == '__main__':
 ##
 ## Blur filter
 ## Convolve the image with a gaussian filter array. You can use a different sigma
-## and kernel size for different blur effects. This is one simple example filter:
+## and kernel size for different blur effects. This is one example blur filter:
 ## [[1/16 1/8 1/6]
 ## [1/8 1/4 1/8]
 ## [1/16 1/8 1/16]]
