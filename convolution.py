@@ -137,14 +137,14 @@ class TestConvolution(unittest.TestCase):
         ## Test if 2D depth 1D arrays are kept 1D in the output and 2D depth arrays are kept 2D in the output
         signalOne1D = randn(17) # Generate a 1D signal
         signalTwo1D = randn(4) # Generate another 1D signal
-        test1D1D = convolution(signalOne1D, signalTwo1D).ndim
-        self.assertTrue(np.array_equal(test1D1D, 1)) # 1D input, 1D kernel, outputs 1D
-        test1D2D = convolution(signalOne1D, [signalTwo1D]).ndim
-        self.assertTrue(np.array_equal(test1D2D, 1)) # 1D input, 2D kernel, outputs 1D
-        test2D1D = convolution([signalOne1D], signalTwo1D).ndim
-        self.assertTrue(np.array_equal(test2D1D, 2)) # 2D input, 1D kernel, outputs 2D
-        test2D2D = convolution([signalOne1D], [signalTwo1D]).ndim
-        self.assertTrue(np.array_equal(test2D2D, 2)) # 2D input, 2D kernel, outputs 2D
+        test1D1D = convolution(signalOne1D, signalTwo1D).ndim # 1D input, 1D kernel
+        self.assertTrue(np.array_equal(test1D1D, 1)) # Success if outputs 1D
+        test1D2D = convolution(signalOne1D, [signalTwo1D]).ndim # 1D input, 2D kernel
+        self.assertTrue(np.array_equal(test1D2D, 1)) # Success if outputs 1D
+        test2D1D = convolution([signalOne1D], signalTwo1D).ndim # 2D input, 1D kernel
+        self.assertTrue(np.array_equal(test2D1D, 2)) # Success if outputs 2D
+        test2D2D = convolution([signalOne1D], [signalTwo1D]).ndim # 2D input, 2D kernel
+        self.assertTrue(np.array_equal(test2D2D, 2)) # Success if outputs 2D
 
 
     def test_Empty_Variables(self):
