@@ -6,7 +6,7 @@
 ## Written by Nick Talavera on February 13, 2017
 ##
 ## To run, type:
-## python nicholas-talavera-submission.py
+## python convolution.py
 ##
 import unittest
 import random
